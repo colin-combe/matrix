@@ -38,7 +38,8 @@ Graph.prototype.setData = function(xwalk_out, xlv){
 	
 	this.canvas = d3.select(this.chart).append("canvas")
 		.attr("width",  this.cx)
-		.attr("height", this.cy);
+		.attr("height", this.cy)
+		.style('overflow','auto');
 	
 	this.xwalkOut = xwalk_out;
 	this.xinet = xlv;
@@ -62,8 +63,8 @@ Graph.prototype.redraw = function() {
 	return function() { 
 		var seqLength = self.xwalkOut.length - 1;
 		
-		var xStep = self.size.width / seqLength;
-		var yStep = self.size.height / seqLength;
+		var xStep = 2;//self.size.width / seqLength;
+		var yStep = 2;//self.size.height / seqLength;
 		var ctx = self.canvas[0][0].getContext("2d");
 						
 		for (var i = 1; i < seqLength + 1; i++){
@@ -80,54 +81,55 @@ Graph.prototype.redraw = function() {
 						//~ cell.attr("height", 2);//self.y(1));
 						ctx.fillStyle = self.scale(xwalk);
 						//~ ctx.fillRect(self.x(i),self.y(j),2,2);
+						//ctx.fillRect((i - 1) * xStep, (j - 1) * yStep , xStep, yStep);
 						ctx.fillRect((i - 1) * xStep, (j - 1) * yStep , xStep, yStep);
 					}				
 				}
 			}
 		}
 		
-		var residueLinks = self.xinet.proteinLinks.values()[0].residueLinks.values();
-		var rlCount = residueLinks.length;
-		var sasIn = 0, sasMid = 0, sasOut = 0, eucIn = 0, eucMid = 0, eucOut = 0; 
-		for (var rl = 0; rl < rlCount; rl++) {
-			var crossLink = residueLinks[rl];
-						if (self.xwalkOut[crossLink.fromResidue]
-							&& self.xwalkOut[crossLink.fromResidue][crossLink.toResidue]
-							&& self.xwalkOut[crossLink.fromResidue][crossLink.toResidue] < 25){
-							ctx.fillStyle = "fill", "black";
-							sasIn++;
-						}
-						else if (self.xwalkOut[crossLink.fromResidue]
-							&& self.xwalkOut[crossLink.fromResidue][crossLink.toResidue]
-							&& self.xwalkOut[crossLink.fromResidue][crossLink.toResidue] < 35){
-							ctx.fillStyle =  "#d95f02";
-							sasMid++;
-						}
-						else {
-							ctx.fillStyle =  "#7570b3";
-							sasOut++;
-						}
-						ctx.fillRect((crossLink.fromResidue - 1) * xStep, (crossLink.toResidue - 1) * yStep , xStep, yStep);
-					
-						if (self.xwalkOut[crossLink.toResidue]
-							&& self.xwalkOut[crossLink.toResidue][crossLink.fromResidue]
-							&& self.xwalkOut[crossLink.toResidue][crossLink.fromResidue] < 25){
-							ctx.fillStyle = "black";
-							eucIn++;
-						}
-						else if (self.xwalkOut[crossLink.toResidue]
-							&& self.xwalkOut[crossLink.toResidue][crossLink.fromResidue]
-							&& self.xwalkOut[crossLink.toResidue][crossLink.fromResidue] < 35){
-							ctx.fillStyle = "#d95f02";
-							eucMid++;
-						}
-						else {
-							ctx.fillStyle = "#7570b3";
-							eucOut++;
-						}
-						ctx.fillRect((crossLink.toResidue - 1) * xStep, (crossLink.fromResidue - 1) * yStep , xStep, yStep);		
-		}
-		console.log(">>"+sasIn + "\t" + sasMid + "\t" + sasOut);
-		console.log(">>"+eucIn + "\t" + eucMid + "\t" + eucOut);
+		//~ var residueLinks = self.xinet.proteinLinks.values()[0].residueLinks.values();
+		//~ var rlCount = residueLinks.length;
+		//~ var sasIn = 0, sasMid = 0, sasOut = 0, eucIn = 0, eucMid = 0, eucOut = 0; 
+		//~ for (var rl = 0; rl < rlCount; rl++) {
+			//~ var crossLink = residueLinks[rl];
+						//~ if (self.xwalkOut[crossLink.fromResidue]
+							//~ && self.xwalkOut[crossLink.fromResidue][crossLink.toResidue]
+							//~ && self.xwalkOut[crossLink.fromResidue][crossLink.toResidue] < 25){
+							//~ ctx.fillStyle = "fill", "black";
+							//~ sasIn++;
+						//~ }
+						//~ else if (self.xwalkOut[crossLink.fromResidue]
+							//~ && self.xwalkOut[crossLink.fromResidue][crossLink.toResidue]
+							//~ && self.xwalkOut[crossLink.fromResidue][crossLink.toResidue] < 35){
+							//~ ctx.fillStyle =  "#d95f02";
+							//~ sasMid++;
+						//~ }
+						//~ else {
+							//~ ctx.fillStyle =  "#7570b3";
+							//~ sasOut++;
+						//~ }
+						//~ ctx.fillRect((crossLink.fromResidue - 1) * xStep, (crossLink.toResidue - 1) * yStep , xStep, yStep);
+					//~ 
+						//~ if (self.xwalkOut[crossLink.toResidue]
+							//~ && self.xwalkOut[crossLink.toResidue][crossLink.fromResidue]
+							//~ && self.xwalkOut[crossLink.toResidue][crossLink.fromResidue] < 25){
+							//~ ctx.fillStyle = "black";
+							//~ eucIn++;
+						//~ }
+						//~ else if (self.xwalkOut[crossLink.toResidue]
+							//~ && self.xwalkOut[crossLink.toResidue][crossLink.fromResidue]
+							//~ && self.xwalkOut[crossLink.toResidue][crossLink.fromResidue] < 35){
+							//~ ctx.fillStyle = "#d95f02";
+							//~ eucMid++;
+						//~ }
+						//~ else {
+							//~ ctx.fillStyle = "#7570b3";
+							//~ eucOut++;
+						//~ }
+						//~ ctx.fillRect((crossLink.toResidue - 1) * xStep, (crossLink.fromResidue - 1) * yStep , xStep, yStep);		
+		//~ }
+		//console.log(">>"+sasIn + "\t" + sasMid + "\t" + sasOut);
+		//console.log(">>"+eucIn + "\t" + eucMid + "\t" + eucOut);
 	}  
 }
