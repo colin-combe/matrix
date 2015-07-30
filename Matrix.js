@@ -38,6 +38,7 @@ DistanceMatrix = function(targetDiv, options) {
 
 	this.sliderDiv = d3.select(this.targetDiv).append("div").attr("id","sliderDiv");
 	this.slider = new DistanceSlider("sliderDiv", this);
+	this.stats = d3.select(this.targetDiv).append("div").attr("id","statsDiv");
 				
 	// Add the x-axis label
 	if (this.options.xlabel) {
@@ -74,10 +75,12 @@ DistanceMatrix.prototype.setData = function(distances, xlv){
 }
 
 DistanceMatrix.dubiousUnlinked = "#eeeeee";
-DistanceMatrix.withinUnlinked = "#a6dba0";
-DistanceMatrix.overLinked = "black";
-DistanceMatrix.dubiousLinked = "black";
+DistanceMatrix.withinUnlinked = "#ccebc5";//"#e6f5c9";//#a6dba0";//"#b2df8a";//
+
+DistanceMatrix.overLinked = "red";//"#e7298a";//"#7570b3";
+DistanceMatrix.dubiousLinked = "#1f78b4";//"#d95f02";
 DistanceMatrix.withinLinked = "black";
+
 DistanceMatrix.prototype.redraw = function() {
 
 	var self = this;
@@ -103,10 +106,10 @@ DistanceMatrix.prototype.redraw = function() {
 			.style("-ms-transform-origin", "0 0")
 			.style("-moz-transform","scale("+canvasScale+")")
 			.style("-moz-transform-origin", "0 0")
-			//~ .style("-o-transform","scale("+canvasScale+")")
-			//~ .style("-o-transform-origin", "0 0")
-			//~ .style("-webkit-transform","scale("+canvasScale+")")
-			//~ .style("-webkit-transform-origin", "0 0")
+			.style("-o-transform","scale("+canvasScale+")")
+			.style("-o-transform-origin", "0 0")
+			.style("-webkit-transform","scale("+canvasScale+")")
+			.style("-webkit-transform-origin", "0 0")
 			.style("transform","scale("+canvasScale+")")
 			.style("transform-origin", "0 0")
 			.style("top", (self.margin.top) + "px")
@@ -154,10 +157,22 @@ DistanceMatrix.prototype.redraw = function() {
 			}
 		}
 
+		ctx.fillStyle = DistanceMatrix.dubiousUnlinked;
+		
+		for (var i = 1; i < self.seqLength + 1; i++){
+			var row = self.distances[i];
+			if (row){
+				for (var j = 1; j < self.seqLength; j++){
+					var distance = row[j];
+					if (distance && distance > sliderExtent[0] && distance < sliderExtent[1]) {
+						// ctx.fillStyle = self.scale(distance);
+						ctx.fillRect((i - 1) * xStep, (self.seqLength - j) * yStep , xStep, yStep);
+					}
+				}
+			}
+		}
 
 
-
-//~ 
 		var residueLinks = self.xinet.proteinLinks.values()[0].residueLinks.values();
 		var rlCount = residueLinks.length;
 		var sasIn = 0, sasMid = 0, sasOut = 0, eucIn = 0, eucMid = 0, eucOut = 0;
@@ -165,41 +180,41 @@ DistanceMatrix.prototype.redraw = function() {
 			var crossLink = residueLinks[rl];
 						if (self.distances[crossLink.fromResidue]
 							&& self.distances[crossLink.fromResidue][crossLink.toResidue]
-							&& self.distances[crossLink.fromResidue][crossLink.toResidue] < 25){
-							ctx.fillStyle = "fill", "black";
+							&& self.distances[crossLink.fromResidue][crossLink.toResidue] < sliderExtent[0]){
+							ctx.fillStyle = DistanceMatrix.withinLinked;
 							sasIn++;
 						}
 						else if (self.distances[crossLink.fromResidue]
 							&& self.distances[crossLink.fromResidue][crossLink.toResidue]
-							&& self.distances[crossLink.fromResidue][crossLink.toResidue] < 35){
-							ctx.fillStyle =  "#d95f02";
+							&& self.distances[crossLink.fromResidue][crossLink.toResidue] < sliderExtent[1]){
+							ctx.fillStyle =  DistanceMatrix.dubiousLinked;
 							sasMid++;
 						}
 						else {
-							ctx.fillStyle =  "#7570b3";
+							ctx.fillStyle =  DistanceMatrix.overLinked;
 							sasOut++;
 						}
 						ctx.fillRect((crossLink.fromResidue - 1) * xStep, (self.seqLength - crossLink.toResidue) * yStep , xStep, yStep);
 					//~ //~
 						if (self.distances[crossLink.toResidue]
 							&& self.distances[crossLink.toResidue][crossLink.fromResidue]
-							&& self.distances[crossLink.toResidue][crossLink.fromResidue] < 25){
-							ctx.fillStyle = "black";
+							&& self.distances[crossLink.toResidue][crossLink.fromResidue] < sliderExtent[0]){
+							ctx.fillStyle = DistanceMatrix.withinLinked;
 							eucIn++;
 						}
 						else if (self.distances[crossLink.toResidue]
 							&& self.distances[crossLink.toResidue][crossLink.fromResidue]
-							&& self.distances[crossLink.toResidue][crossLink.fromResidue] < 35){
-							ctx.fillStyle = "#d95f02";
+							&& self.distances[crossLink.toResidue][crossLink.fromResidue] < sliderExtent[1]){
+							ctx.fillStyle = DistanceMatrix.dubiousLinked;
 							eucMid++;
 						}
 						else {
-							ctx.fillStyle = "#7570b3";
+							ctx.fillStyle = DistanceMatrix.overLinked;
 							eucOut++;
 						}
 						ctx.fillRect((crossLink.toResidue - 1) * xStep, (self.seqLength - crossLink.fromResidue) * yStep , xStep, yStep);
 		}
-		console.log(">>"+sasIn + "\t" + sasMid + "\t" + sasOut);
+		self.stats.html(sasIn + "\t" + sasMid + "\t" + sasOut);
 		console.log(">>"+eucIn + "\t" + eucMid + "\t" + eucOut);
 	}
 }
