@@ -126,7 +126,7 @@ DistanceMatrix.prototype.redraw = function() {
 		// y-scale (inverted domain)
 		self.y = d3.scale.linear()
 			.domain([self.seqLength, 1])
-			.range([0, minDim])
+			.range([0, minDim]);
 		
 		self.vis.append("g")
 			.attr("class", "y axis")
